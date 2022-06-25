@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.RolePermissionMapper">
+
+<!--    sql片段-->
+    <sql id="columns">
+        select id,role_id,permission_id,create_time,update_time,is_deleted
+    </sql>
+<!--    List<Long> findPermissionIdsByRoleId(Long roleId);-->
+    <select id="findPermissionIdsByRoleId" resultType="Long">
+        select permission_id from acl_role_permission
+        where role_id = #{roleId} and is_deleted = 0
+    </select>
+<!--      void delete(@Param("roleId") Long roleId,@Param("removePermissionIdList") List<Long> removePermissionIdList);;-->
+    <update id="delete">
+        update acl_role_permission set is_deleted = 1, update_time = now()
+        where role_id = #{roleId} and permission_id in
+        (
+        <foreach collection="removePermissionIdList" item="removePermissionId" separator=",">
+            #{removePermissionId}
+        </foreach>
+        )
+    </update>
+
+<!--     RolePermission findPermissionByRoleIdAndPermission(@Param("roleId") Long roleId,@Param("permissionId") Long permissionId);-->
+    <select id="findPermissionByRoleIdAndPermission" resultType="RolePermission">
+        <include refid="columns"></include>
+        from acl_role_permission where role_id=#{roleId} and permission_id = #{permissionId}
+    </select>
+
+<!--    void insert(@Param("roleId") Long roleId,@Param("permissionId") Long permissionId);-->
+    <insert id="insert">
+        insert into acl_role_permission (role_id,permission_id) values (#{roleId},#{permissionId})
+    </insert>
+<!--         void update(RolePermission rolePermission);-->
+    <update id="update">
+        update acl_role_permission set is_deleted = #{isDeleted}
+        where role_id = #{roleId} and permission_id = #{permissionId}
+    </update>
+
+</mapper>

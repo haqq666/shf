@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.DictMapper">
+
+    <sql id="column">
+        select id,parent_id,name,dict_code,create_time,update_time,is_deleted
+
+    </sql>
+
+<!--    List<Dict> findListByParentId(Long parentId);-->
+    <select id="findListByParentId" resultType="com.atguigu.entity.Dict">
+        <include refid="column"></include>
+        from hse_dict where parent_id=#{parentId} and is_deleted = 0
+    </select>
+<!-- Integer countIdParent(Long id);-->
+    <select id="countIdParent" resultType="int">
+        select count(0) from hse_dict where parent_id=#{parentId}
+    </select>
+
+    <!--        List<Dict> findListByParentCode(String code);-->
+    <select id="findListByParentCode" resultType="com.atguigu.entity.Dict">
+        <include refid="column"></include>
+        from hse_dict
+        where parent_id=(select id from hse_dict where dict_code=#{parentDictCode}
+        and is_deleted=0)
+        and is_deleted=0
+    </select>
+
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.AdminRoleMapper">
+
+    <sql id="columns">
+        select id,role_id,admin_id,create_time,update_time,is_deleted
+    </sql>
+
+<!--     List<Role> findRolesByAdminId(Long id);-->
+    <select id="findRolesByAdminId" resultType="Long">
+        select role_id from acl_admin_role where admin_id = #{id} and is_deleted = 0
+   </select>
+    <!--         void delete(@Param("adminId") Long adminId, @Param("roleIds") List<Long> removeRoles);-->
+    <update id="delete">
+        update acl_admin_role set is_deleted = 1
+        where admin_id = #{adminId} and role_id in
+        (
+        <foreach collection="roleIds" item="roleId" separator=",">
+            #{roleId}
+        </foreach>
+       )
+    </update>
+<!--        AdminRole findRolesByAdminIdAndRoleId(@Param("adminId") Long adminId, @Param("roleId") Long roleId);-->
+        <select id="findRolesByAdminIdAndRoleId" resultType="AdminRole">
+            <include refid="columns"></include>
+            from acl_admin_role where admin_id = #{adminId} and role_id = #{roleId}
+        </select>
+<!--        void insert(Long adminId, Long roleId);-->
+    <insert id="insert">
+        insert into acl_admin_role (admin_id,role_id) values (#{adminId},#{roleId})
+    </insert>
+<!--        void update(AdminRole adminRole);-->
+    <update id="update">
+        update acl_admin_role set is_deleted = #{isDeleted},update_time = now()
+        where  admin_id = #{adminId} and role_id = #{roleId}
+    </update>
+</mapper>
